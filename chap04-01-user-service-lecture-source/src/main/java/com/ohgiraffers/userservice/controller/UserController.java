@@ -6,7 +6,6 @@ import com.ohgiraffers.userservice.service.UserService;
 import com.ohgiraffers.userservice.vo.HelloVO;
 import com.ohgiraffers.userservice.vo.RequestUser;
 import com.ohgiraffers.userservice.vo.ResponseUser;
-import jakarta.servlet.http.HttpServlet;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -67,5 +66,15 @@ public class UserController {
         ResponseUser responseUser = modelMapper.map(userDTO, ResponseUser.class);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseUser);
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<ResponseUser> getUser(@PathVariable("id") String id){
+
+        UserDTO userDTO = userService.getUserById(id);
+
+        ResponseUser returnValue = modelMapper.map(userDTO, ResponseUser.class);
+
+        return ResponseEntity.status(HttpStatus.OK).body(returnValue);
     }
 }
