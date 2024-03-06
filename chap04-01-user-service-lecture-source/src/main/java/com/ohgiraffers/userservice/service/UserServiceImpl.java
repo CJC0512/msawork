@@ -1,8 +1,10 @@
 package com.ohgiraffers.userservice.service;
 
 import com.ohgiraffers.userservice.aggregate.UserEntity;
+import com.ohgiraffers.userservice.client.OrderServiceClient;
 import com.ohgiraffers.userservice.dto.UserDTO;
 import com.ohgiraffers.userservice.repository.UserRepository;
+import com.ohgiraffers.userservice.vo.ResponseOrder;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,22 +16,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    private UserRepository userRepository;
-    private ModelMapper modelMapper;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    /* 설명. FeignClient 이후 추가할 부분 */
+    private final OrderServiceClient orderServiceClient;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
                            ModelMapper modelMapper,
-                           BCryptPasswordEncoder bCryptPasswordEncoder) {
+                           BCryptPasswordEncoder bCryptPasswordEncoder,
+                            OrderServiceClient orderServiceClient) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+
+        /* 설명. FeignClient 이후 추가할 부분 2 */
+        this.orderServiceClient = orderServiceClient;
     }
 
     @Transactional
@@ -79,7 +89,11 @@ public class UserServiceImpl implements UserService {
 
         UserDTO userDTO = modelMapper.map(userEntity, UserDTO.class);
 
-//        userDTO.set
+        /* 설명. 통신은 Service 계층에서 하는 것이므로 아래에 해당 내용을 작성 */
+        /* 설명. FeignClient를 통한 통신 시 추가할 부분 */
+        List<ResponseOrder> orderList = orderServiceClient.getUserOrders(id);
+
+        userDTO.setOrders(orderList);
 
         return userDTO;
     }
